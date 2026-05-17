@@ -1,7 +1,4 @@
 package university.model;
-
-import university.classes.*;
-
 import university.classes.*;
 import university.exceptions.LowResearcherException;
 import university.exceptions.MaxCreditsExceededException;
