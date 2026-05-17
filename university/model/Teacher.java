@@ -1,16 +1,13 @@
 package university.model;
-
 import university.classes.*;
 import university.enums.TeacherTitle;
 import university.exceptions.InvalidGradeException;
 import university.exceptions.GradeRequirementException; 
 import university.patterns.Logger;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Teacher extends Employee implements Serializable {
+public class Teacher extends Employee {
     private static final long serialVersionUID = 1L;
 
     private TeacherTitle title;
@@ -83,7 +80,7 @@ public class Teacher extends Employee implements Serializable {
         if (schedule.isEmpty()) {
             System.out.println("No lessons scheduled.");
         } else {
-            schedule.forEach(System.out.println);
+            schedule.forEach(System.out::println);
         }
     }
 
