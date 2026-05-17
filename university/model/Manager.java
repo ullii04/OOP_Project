@@ -43,17 +43,6 @@ public class Manager extends Employee {
                 System.out.println("🚨 Registration rejected automatically: Credit limit exceeded for " + student.getFullName());
                 return;
             }
-
-            
-            if (course.getPrerequisite() != null) {
-                Course prerequisite = course.getPrerequisite();
-                if (!student.getPassedCourses().contains(prerequisite)) {
-                    throw new GradeRequirementException("Student " + student.getFullName() + 
-                        " does not meet requirements for " + course.getName() + 
-                        ". Must pass prerequisite first: " + prerequisite.getName());
-                }
-            }
-
             
             enrollment.approve();
             student.getCourses().add(course);
@@ -166,7 +155,6 @@ public class Manager extends Employee {
         System.out.println("10. View Inbox / Notifications");
         System.out.println("0. Logout");
     }
-
   
     public ManagerType getType() { return type; }
     public List<String> getNews() { return news; }
