@@ -1,11 +1,6 @@
 package university.patterns;
-
-import university.classes.*;
-
 import university.classes.ResearchPaper;
-
 import java.util.Comparator;
-
 
 public class SortStrategy {
 
