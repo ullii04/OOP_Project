@@ -1,4 +1,4 @@
-package university.model;
+package university.classes;
 
 import java.io.Serializable;
 import java.time.LocalDate;
