@@ -1,10 +1,6 @@
 package university.patterns;
-
-import university.classes.*;
-
 import university.interfaces.Observable;
 import university.interfaces.Observer;
-
 import java.util.ArrayList;
 import java.util.List;
 
