@@ -1,10 +1,10 @@
-package university.classes;
+package university.model;
 
-import university.model.Student;
-import university.model.Teacher;
+import university.enums.StudentYear;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,45 +15,77 @@ public class Course implements Serializable {
     private String name;
     private int credits;
     private int maxStudents;
-    private int year;
+    private StudentYear year;
     private String major;
 
-    private List<Teacher> instructors;
-    private List<Lesson> lessons;
-    private boolean available;
-    private List<Student> students;
+    private final List<Teacher> instructors;
+    private final List<Lesson> lessons;
+    private final List<Student> students;
 
-    public Course(String name, int credits, int maxStudents, int year, String major) {
+    private boolean available;
+
+    public Course(String name, int credits, int maxStudents, StudentYear year, String major) {
+        if (credits <= 0 || credits > 10) {
+            throw new IllegalArgumentException("Credits must be between 1 and 10.");
+        }
+
+        if (maxStudents <= 0) {
+            throw new IllegalArgumentException("Max students must be positive.");
+        }
+
         this.courseId = "CRS-" + System.currentTimeMillis();
         this.name = name;
         this.credits = credits;
         this.maxStudents = maxStudents;
         this.year = year;
         this.major = major;
+
         this.instructors = new ArrayList<>();
         this.lessons = new ArrayList<>();
         this.students = new ArrayList<>();
+
         this.available = true;
     }
 
     public void addLesson(Lesson lesson) {
-        lessons.add(lesson);
+        if (lesson != null && !lessons.contains(lesson)) {
+            lessons.add(lesson);
+        }
     }
 
     public void assignTeacher(Teacher teacher) {
-        if (!instructors.contains(teacher)) {
+        if (teacher != null && !instructors.contains(teacher)) {
             instructors.add(teacher);
         }
     }
 
-    public void enrollStudent(Student student) {
-        if (students.size() < maxStudents && !students.contains(student)) {
-            students.add(student);
+    public boolean enrollStudent(Student student) {
+        if (!available) {
+            return false;
         }
+
+        if (students.size() >= maxStudents) {
+            return false;
+        }
+
+        if (students.contains(student)) {
+            return false;
+        }
+
+        students.add(student);
+        return true;
     }
 
     public void removeStudent(Student student) {
         students.remove(student);
+    }
+
+    public boolean hasAvailablePlaces() {
+        return students.size() < maxStudents;
+    }
+
+    public int getAvailablePlaces() {
+        return maxStudents - students.size();
     }
 
     public String getCourseId() {
@@ -72,7 +104,7 @@ public class Course implements Serializable {
         return maxStudents;
     }
 
-    public int getYear() {
+    public StudentYear getYear() {
         return year;
     }
 
@@ -81,15 +113,15 @@ public class Course implements Serializable {
     }
 
     public List<Teacher> getInstructors() {
-        return instructors;
+        return Collections.unmodifiableList(instructors);
     }
 
     public List<Lesson> getLessons() {
-        return lessons;
+        return Collections.unmodifiableList(lessons);
     }
 
     public List<Student> getStudents() {
-        return students;
+        return Collections.unmodifiableList(students);
     }
 
     public boolean isAvailable() {
@@ -101,16 +133,10 @@ public class Course implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (!(object instanceof Course)) {
-            return false;
-        }
-
-        Course course = (Course) object;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Course)) return false;
+        Course course = (Course) o;
         return Objects.equals(courseId, course.courseId);
     }
 
@@ -121,7 +147,12 @@ public class Course implements Serializable {
 
     @Override
     public String toString() {
-        return "Course{name='" + name + "', credits=" + credits +
-                ", year=" + year + ", major='" + major + "'}";
+        return "Course{name='" + name
+                + "', credits=" + credits
+                + ", year=" + year
+                + ", major='" + major
+                + "', students=" + students.size() + "/" + maxStudents
+                + ", available=" + available
+                + "}";
     }
 }
