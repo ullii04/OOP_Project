@@ -1,7 +1,4 @@
 package university.patterns;
-
-import university.classes.*;
-
 import university.model.Researcher;
 
 
@@ -17,7 +14,6 @@ public class ResearcherDecorator extends Researcher {
     public void addPaper(university.classes.ResearchPaper paper) {
         System.out.println("[Decorator] Adding paper with extra validation: " + paper.getTitle());
         wrapped.addPaper(paper);
-        // sync to this decorator's list as well
         if (!getPapers().contains(paper)) {
             super.addPaper(paper);
         }
