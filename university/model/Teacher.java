@@ -1,11 +1,9 @@
 package university.model;
-
 import university.classes.*;
 import university.enums.TeacherTitle;
 import university.exceptions.InvalidGradeException;
 import university.exceptions.GradeRequirementException; 
 import university.patterns.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,6 +77,19 @@ public class Teacher extends Employee {
         } catch (GradeRequirementException e) {
             System.out.println("Academic requirement error: " + e.getMessage());
         }
+    }
+
+    public void viewStudents(Course course) {
+        System.out.println("\n=== Students in " + course.getName() + " ===");
+
+        if (course.getStudents().isEmpty()) {
+            System.out.println("No students enrolled yet.");
+            return;
+        }
+
+        course.getStudents().forEach(student ->
+            System.out.println(" - " + student.getFullName() + " (" + student.getUsername() + ")")
+        );
     }
 
     public void manageCourse(Course course) {
