@@ -1,7 +1,5 @@
 package university.classes;
 import university.enums.LessonType;
-import university.classes.Room;
-import university.classes.Schedule;
 import university.exceptions.GradeRequirementException; 
 import java.io.Serializable;
 import java.util.Objects;
