@@ -1,36 +1,64 @@
-package university.classes;
-
-import university.model.Student;
-
+package university.model;
+import university.enums.EnrollmentStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Enrollment implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private final String enrollmentId;
-    private Student student;
-    private Course course;
-    private LocalDate enrolledAt;
-    private String status;
+    private final Student student;
+    private final Course course;
+    private final LocalDate enrolledAt;
+    private EnrollmentStatus status;
 
     public Enrollment(Student student, Course course) {
         this.enrollmentId = "ENR-" + System.currentTimeMillis();
         this.student = student;
         this.course = course;
         this.enrolledAt = LocalDate.now();
-        this.status = "PENDING";
+        this.status = EnrollmentStatus.PENDING;
     }
 
     public void approve() {
-        status = "APPROVED";
-        course.enrollStudent(student);
+        if (status == EnrollmentStatus.REJECTED) {
+            System.out.println("Cannot approve rejected enrollment.");
+            return;
+        }
+
+        if (status == EnrollmentStatus.APPROVED) {
+            System.out.println("Enrollment is already approved.");
+            return;
+        }
+
+        boolean enrolled = course.enrollStudent(student);
+
+        if (enrolled) {
+            status = EnrollmentStatus.APPROVED; }
+        else {
+            System.out.println("Cannot approve enrollment: course is full or unavailable.");
+        }
     }
 
     public void reject() {
-        status = "REJECTED";
+        if (status == EnrollmentStatus.APPROVED) {
+            System.out.println("Cannot reject already approved enrollment.");
+            return;
+        }
+
+        status = EnrollmentStatus.REJECTED;
+    }
+
+    public void drop() {
+        if (status == EnrollmentStatus.APPROVED) {
+            course.removeStudent(student);
+        }
+        status = EnrollmentStatus.DROPPED;
+    }
+
+    public boolean isApproved() {
+        return status == EnrollmentStatus.APPROVED;
     }
 
     public Student getStudent() {
@@ -41,7 +69,7 @@ public class Enrollment implements Serializable {
         return course;
     }
 
-    public String getStatus() {
+    public EnrollmentStatus getStatus() {
         return status;
     }
 
@@ -54,17 +82,11 @@ public class Enrollment implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (!(object instanceof Enrollment)) {
-            return false;
-        }
-
-        Enrollment enrollment = (Enrollment) object;
-        return Objects.equals(enrollmentId, enrollment.enrollmentId);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Enrollment)) return false;
+        Enrollment e = (Enrollment) o;
+        return Objects.equals(enrollmentId, e.enrollmentId);
     }
 
     @Override
@@ -74,11 +96,10 @@ public class Enrollment implements Serializable {
 
     @Override
     public String toString() {
-        return "Enrollment{student='" +
-                student.getFullName() +
-                "', course='" +
-                course.getName() +
-                "', status=" +
-                status + "'}";
+        return "Enrollment{student='" + student.getFullName()
+                + "', course='" + course.getName()
+                + "', status=" + status
+                + ", enrolledAt=" + enrolledAt
+                + "}";
     }
 }
