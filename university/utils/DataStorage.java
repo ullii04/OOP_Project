@@ -1,17 +1,14 @@
 package university.utils;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import university.interfaces.Researcher;
+import university.classes.*;
 import university.model.*;
 
 public class DataStorage implements Serializable {
     private static final long serialVersionUID = 1L;
-
     private static final String DATA_FILE = "university_data.ser";
     private static DataStorage instance;
-
     private List<User> users;
     private List<Course> courses;
     private List<ResearchProject> researchProjects;
@@ -82,6 +79,10 @@ public class DataStorage implements Serializable {
     }
 
     public User findUserById(String userId) {
+        if (userId == null) {
+            return null;
+        }
+
         for (User user : users) {
             if (user.getUserId().equals(userId)) {
                 return user;
@@ -92,39 +93,41 @@ public class DataStorage implements Serializable {
     }
 
     public User findUserByEmail(String email) {
-    if (email == null) {
+        if (email == null) {
+            return null;
+        }
+
+        String cleanEmail = email.trim();
+
+        for (User user : users) {
+            if (user.getEmail().equalsIgnoreCase(cleanEmail)) {
+                return user;
+            }
+        }
+
         return null;
     }
-
-    String cleanEmail = email.trim();
-
-    for (User user : users) {
-        if (user.getEmail().equalsIgnoreCase(cleanEmail)) {
-            return user;
-        }
-    }
-
-    return null;
-}
 
     public User findUserByUsername(String username) {
-    if (username == null) {
+        if (username == null) {
+            return null;
+        }
+
+        String cleanUsername = username.trim();
+
+        for (User user : users) {
+            if (user.getUsername().equalsIgnoreCase(cleanUsername)) {
+                return user;
+            }
+        }
+
         return null;
     }
 
-    String cleanUsername = username.trim();
-
-    for (User user : users) {
-        if (user.getUsername().equalsIgnoreCase(cleanUsername)) {
-            return user;
-        }
-    }
-
-    return null;
-}
-
     public void addCourse(Course course) {
-        courses.add(course);
+        if (course != null) {
+            courses.add(course);
+        }
     }
 
     public List<Course> getCourses() {
@@ -132,8 +135,14 @@ public class DataStorage implements Serializable {
     }
 
     public Course findCourseByName(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String cleanName = name.trim();
+
         for (Course course : courses) {
-            if (course.getName().equalsIgnoreCase(name)) {
+            if (course.getName().equalsIgnoreCase(cleanName)) {
                 return course;
             }
         }
@@ -142,7 +151,9 @@ public class DataStorage implements Serializable {
     }
 
     public void addResearchProject(ResearchProject project) {
-        researchProjects.add(project);
+        if (project != null) {
+            researchProjects.add(project);
+        }
     }
 
     public List<ResearchProject> getResearchProjects() {
@@ -150,7 +161,9 @@ public class DataStorage implements Serializable {
     }
 
     public void addEnrollment(Enrollment enrollment) {
-        enrollments.add(enrollment);
+        if (enrollment != null) {
+            enrollments.add(enrollment);
+        }
     }
 
     public List<Enrollment> getEnrollments() {
@@ -161,8 +174,8 @@ public class DataStorage implements Serializable {
         List<Student> students = new ArrayList<>();
 
         for (User user : users) {
-            if (user instanceof Student) {
-                students.add((Student) user);
+            if (user instanceof Student student) {
+                students.add(student);
             }
         }
 
@@ -173,8 +186,8 @@ public class DataStorage implements Serializable {
         List<Teacher> teachers = new ArrayList<>();
 
         for (User user : users) {
-            if (user instanceof Teacher) {
-                teachers.add((Teacher) user);
+            if (user instanceof Teacher teacher) {
+                teachers.add(teacher);
             }
         }
 
@@ -185,16 +198,12 @@ public class DataStorage implements Serializable {
         List<Researcher> researchers = new ArrayList<>();
 
         for (User user : users) {
-            if (user instanceof Researcher) {
-                researchers.add((Researcher) user);
+            if (user instanceof Student student && student.isResearcher()) {
+                researchers.add(student.getResearcherRole());
             }
 
-            if (user instanceof Student) {
-                Student student = (Student) user;
-
-                if (student.isResearcher()) {
-                    researchers.add(student.getResearcherRole());
-                }
+            if (user instanceof Teacher teacher && teacher.isResearcher()) {
+                researchers.add(teacher.getResearcherProfile());
             }
         }
 
