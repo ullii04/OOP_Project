@@ -11,26 +11,17 @@ import java.util.List;
 public class Student extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     private static final int MAX_CREDITS = 21;
     private static final int MAX_FAILS = 3;
-
     private String studentId;
-
-    private String firstName;
-    private String lastName;
-
     private int year;
     private double gpa;
     private int credits;
     private int failCount;
-
     private List<Mark> marks;
     private List<Course> courses;
     private List<Enrollment> enrollments;
-
     private Researcher researchSupervisor;
-
     private Researcher researcherRole;
 
     public Student(String username,
@@ -40,19 +31,15 @@ public class Student extends User implements Serializable {
                    String lastName,
                    int year) {
 
-        super(username, password, email);
+        super(username, password, email, firstName, lastName);
 
         this.studentId = "STU-" + System.currentTimeMillis();
-
         this.firstName = firstName;
         this.lastName = lastName;
-
         this.year = year;
-
         this.gpa = 0.0;
         this.credits = 0;
         this.failCount = 0;
-
         this.marks = new ArrayList<>();
         this.courses = new ArrayList<>();
         this.enrollments = new ArrayList<>();
@@ -223,10 +210,6 @@ public class Student extends User implements Serializable {
 
     public Researcher getResearcherRole() {
         return researcherRole;
-    }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
     }
 
     public String getStudentId() {
