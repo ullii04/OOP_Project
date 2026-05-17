@@ -1,7 +1,6 @@
 package university.model;
 import university.classes.*;
 import university.enums.ManagerType;
-import university.exceptions.GradeRequirementException;
 import university.patterns.Logger;
 import java.util.*;
 
@@ -33,27 +32,35 @@ public class Manager extends Employee {
 
    
     public void approveRegistration(Enrollment enrollment) {
-        try {
-            Student student = enrollment.getStudent();
-            Course course = enrollment.getCourse();
+        Student student = enrollment.getStudent();
+        Course course = enrollment.getCourse();
 
-            
-            if (student.getCredits() + course.getCredits() > 21) {
-                rejectRegistration(enrollment);
-                System.out.println("🚨 Registration rejected automatically: Credit limit exceeded for " + student.getFullName());
-                return;
-            }
-            
-            enrollment.approve();
-            student.getCourses().add(course);
+        if (student.getCredits() + course.getCredits() > 21) {
+            rejectRegistration(enrollment);
+            System.out.println("Registration rejected automatically: Credit limit exceeded for "
+                + student.getFullName());
+            return;
+        }
+
+        enrollment.approve();
+
+        if (enrollment.isApproved()) {
             pendingEnrollments.remove(enrollment);
-            
-            Logger.getInstance().log(getUsername() + " approved enrollment for " + student.getUsername() + " to " + course.getName());
-            System.out.println(" Enrollment approved: " + student.getFullName() + " -> " + course.getName());
 
-        } catch (GradeRequirementException e) {
-            System.out.println(" Registration Academic Error: " + e.getMessage());
-            rejectRegistration(enrollment); 
+            Logger.getInstance().log(
+                getUsername()
+                        + " approved enrollment for "
+                        + student.getUsername()
+                        + " to "
+                        + course.getName()
+            );
+
+            System.out.println("Enrollment approved: "
+                + student.getFullName()
+                + " -> "
+                + course.getName());
+        } else {
+            System.out.println("Enrollment could not be approved: course may be full or unavailable.");
         }
     }
 
@@ -155,6 +162,7 @@ public class Manager extends Employee {
         System.out.println("10. View Inbox / Notifications");
         System.out.println("0. Logout");
     }
+
   
     public ManagerType getType() { return type; }
     public List<String> getNews() { return news; }
