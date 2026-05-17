@@ -3,12 +3,10 @@ import university.classes.*;
 import university.exceptions.LowResearcherException;
 import university.exceptions.MaxCreditsExceededException;
 import university.patterns.Logger;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Student extends User implements Serializable {
+public class Student extends User {
 
     private static final long serialVersionUID = 1L;
     private static final int MAX_CREDITS = 21;
