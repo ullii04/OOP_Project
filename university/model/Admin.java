@@ -17,6 +17,13 @@ public class Admin extends User implements Observer {
         this.logFilePath = "system.log";
     }
 
+    public Admin(String username, String password, String email,
+             String firstName, String lastName, String school, double salary) {
+        super(username, password, email, firstName, lastName);
+        this.accessLevel = 5;
+        this.logFilePath = "system.log";
+    }
+
     public Admin(String firstName, String lastName, String email, String password,
                  int accessLevel, String logFilePath) {
         super(firstName, lastName, email, password);
