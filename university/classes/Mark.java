@@ -1,5 +1,5 @@
 package university.classes;
-
+import university.model.*;
 import university.exceptions.InvalidGradeException;
 import university.exceptions.GradeRequirementException;
 
