@@ -1,17 +1,14 @@
 package university.utils;
 
-import university.classes.*;
-
-import university.model.*;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import university.interfaces.Researcher;
+import university.model.*;
 
 public class DataStorage implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private static final String DATA_FILE = "university_data.ser";
     private static DataStorage instance;
 
@@ -30,16 +27,22 @@ public class DataStorage implements Serializable {
     public static DataStorage getInstance() {
         if (instance == null) {
             instance = loadFromFile();
+
             if (instance == null) {
                 instance = new DataStorage();
             }
         }
+
         return instance;
     }
 
     private static DataStorage loadFromFile() {
         File file = new File(DATA_FILE);
-        if (!file.exists()) return null;
+
+        if (!file.exists()) {
+            return null;
+        }
+
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (DataStorage) ois.readObject();
         } catch (Exception e) {
@@ -57,59 +60,144 @@ public class DataStorage implements Serializable {
         }
     }
 
-    // User operations
-    public void addUser(User user) { users.add(user); }
-    public void removeUser(User user) { users.remove(user); }
-    public List<User> getUsers() { return users; }
+    public void addUser(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null.");
+        }
 
-    public User findUserByUsername(String username) {
-        return users.stream().filter(u -> u.getUsername().equals(username)).findFirst().orElse(null);
+        if (findUserByEmail(user.getEmail()) != null) {
+            System.out.println("User with this email already exists.");
+            return;
+        }
+
+        users.add(user);
     }
 
-    // Course operations
-    public void addCourse(Course course) { courses.add(course); }
-    public List<Course> getCourses() { return courses; }
-    public Course findCourseByName(String name) {
-        return courses.stream().filter(c -> c.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    public void removeUser(User user) {
+        users.remove(user);
     }
 
-    // Research project operations
-    public void addResearchProject(ResearchProject project) { researchProjects.add(project); }
-    public List<ResearchProject> getResearchProjects() { return researchProjects; }
-
-    // Enrollment operations
-    public void addEnrollment(Enrollment enrollment) { enrollments.add(enrollment); }
-    public List<Enrollment> getEnrollments() { return enrollments; }
-
-    /** Get all Student users */
-    public List<Student> getStudents() {
-        return users.stream()
-                .filter(u -> u instanceof Student)
-                .map(u -> (Student) u)
-                .collect(Collectors.toList());
+    public List<User> getUsers() {
+        return users;
     }
 
-    /** Get all Teacher users */
-    public List<Teacher> getTeachers() {
-        return users.stream()
-                .filter(u -> u instanceof Teacher)
-                .map(u -> (Teacher) u)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get all Researcher objects across the university.
-     * Collects from Teachers (if isResearcher), Students (if isResearcher), and any Employee with researcher role.
-     */
-    public List<Researcher> getAllResearchers() {
-        List<Researcher> researchers = new ArrayList<>();
-        for (User u : users) {
-            if (u instanceof Teacher t && t.isResearcher()) {
-                researchers.add(t.getResearcherRole());
-            } else if (u instanceof Student s && s.isResearcher()) {
-                researchers.add(s.getResearcherRole());
+    public User findUserById(String userId) {
+        for (User user : users) {
+            if (user.getUserId().equals(userId)) {
+                return user;
             }
         }
+
+        return null;
+    }
+
+    public User findUserByEmail(String email) {
+    if (email == null) {
+        return null;
+    }
+
+    String cleanEmail = email.trim();
+
+    for (User user : users) {
+        if (user.getEmail().equalsIgnoreCase(cleanEmail)) {
+            return user;
+        }
+    }
+
+    return null;
+}
+
+    public User findUserByUsername(String username) {
+    if (username == null) {
+        return null;
+    }
+
+    String cleanUsername = username.trim();
+
+    for (User user : users) {
+        if (user.getUsername().equalsIgnoreCase(cleanUsername)) {
+            return user;
+        }
+    }
+
+    return null;
+}
+
+    public void addCourse(Course course) {
+        courses.add(course);
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public Course findCourseByName(String name) {
+        for (Course course : courses) {
+            if (course.getName().equalsIgnoreCase(name)) {
+                return course;
+            }
+        }
+
+        return null;
+    }
+
+    public void addResearchProject(ResearchProject project) {
+        researchProjects.add(project);
+    }
+
+    public List<ResearchProject> getResearchProjects() {
+        return researchProjects;
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        enrollments.add(enrollment);
+    }
+
+    public List<Enrollment> getEnrollments() {
+        return enrollments;
+    }
+
+    public List<Student> getStudents() {
+        List<Student> students = new ArrayList<>();
+
+        for (User user : users) {
+            if (user instanceof Student) {
+                students.add((Student) user);
+            }
+        }
+
+        return students;
+    }
+
+    public List<Teacher> getTeachers() {
+        List<Teacher> teachers = new ArrayList<>();
+
+        for (User user : users) {
+            if (user instanceof Teacher) {
+                teachers.add((Teacher) user);
+            }
+        }
+
+        return teachers;
+    }
+
+    public List<Researcher> getAllResearchers() {
+        List<Researcher> researchers = new ArrayList<>();
+
+        for (User user : users) {
+            if (user instanceof Researcher) {
+                researchers.add((Researcher) user);
+            }
+
+            if (user instanceof Student) {
+                Student student = (Student) user;
+
+                if (student.isResearcher()) {
+                    researchers.add(student.getResearcherRole());
+                }
+            }
+        }
+
         return researchers;
     }
 }

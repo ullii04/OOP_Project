@@ -1,63 +1,132 @@
 package university.model;
 
-import university.classes.*;
-
-import university.classes.*;
-import university.exceptions.AuthenticationException;
-
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+import university.exceptions.AuthenticationException;
+import university.interfaces.Authenticatable;
+import university.interfaces.Printable;
+import university.utils.ValidationUtils;
 
-public abstract class User implements Serializable {
 
+public abstract class User implements Authenticatable, Printable, Serializable {
     private static final long serialVersionUID = 1L;
 
-    private UUID id;
-
+    private final String userId;
     private String username;
-    private String password;
+
+    protected String firstName;
+    protected String lastName;
+
     private String email;
+    private String passwordHash;
+    private boolean loggedIn = false;
+    protected final LocalDate createdAt;
 
-    private boolean active;
+    // Old constructor for compatibility
+    public User(String username, String password, String email) {
+    ValidationUtils.validateEmail(email);
+    ValidationUtils.validatePassword(password, username, null, null, email);
 
-    public User(String username,
-                String password,
-                String email) {
+    this.userId = UUID.randomUUID().toString();
+    this.username = username;
+    this.firstName = username;
+    this.lastName = "";
+    setEmail(email);
+    this.passwordHash = hashPassword(password);
+    this.createdAt = LocalDate.now();
+}
+    // Constructor used by Student, Teacher, Employee, Manager
+    public User(String username, String password, String email, String firstName, String lastName) {
+    ValidationUtils.validateName(firstName, "First name");
+    ValidationUtils.validateName(lastName, "Last name");
+    ValidationUtils.validateEmail(email);
+    ValidationUtils.validatePassword(password, username, firstName, lastName, email);
 
-        this.id = UUID.randomUUID();
+    this.userId = UUID.randomUUID().toString();
+    this.username = username;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    setEmail(email);
+    this.passwordHash = hashPassword(password);
+    this.createdAt = LocalDate.now();
+}
 
-        this.username = username;
-        this.password = password;
-        this.email = email;
+    // UML-style constructor
+    public User(String firstName, String lastName, String email, String password) {
+    ValidationUtils.validateName(firstName, "First name");
+    ValidationUtils.validateName(lastName, "Last name");
+    ValidationUtils.validateEmail(email);
 
-        this.active = true;
+    String generatedUsername = generateUsername(firstName, lastName);
+    ValidationUtils.validatePassword(password, generatedUsername, firstName, lastName, email);
+
+    this.userId = UUID.randomUUID().toString();
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = generatedUsername;
+    setEmail(email);
+    this.passwordHash = hashPassword(password);
+    this.createdAt = LocalDate.now();
+}
+
+   @Override
+public boolean login(String emailOrUsername, String password) throws AuthenticationException {
+    emailOrUsername = emailOrUsername.trim();
+    password = password.trim();
+
+    boolean usernameMatches = username != null && username.equalsIgnoreCase(emailOrUsername);
+    boolean emailMatches = email != null && email.equalsIgnoreCase(emailOrUsername);
+
+    if ((!usernameMatches && !emailMatches) || !passwordHash.equals(hashPassword(password))) {
+        throw new AuthenticationException("Invalid username/email or password.");
     }
 
-    public boolean login(String username,
-                         String password)
-            throws AuthenticationException {
+    loggedIn = true;
+    return true;
+}
 
-        if (!this.username.equals(username)
-                || !this.password.equals(password)) {
+    @Override
+    public void logout() {
+        loggedIn = false;
+        System.out.println(getFullName() + " logged out.");
+    }
 
-            throw new AuthenticationException(
-                    "Invalid username or password."
-            );
+    @Override
+public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
+    if (!this.passwordHash.equals(hashPassword(oldPassword))) {
+        throw new AuthenticationException("Old password is incorrect.");
+    }
+
+    ValidationUtils.validatePassword(newPassword, username, firstName, lastName, email);
+
+    this.passwordHash = hashPassword(newPassword);
+}
+
+    @Override
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public static boolean validateEmail(String email) {
+        return email != null && email.contains("@") && email.contains(".");
+    }
+
+    private String hashPassword(String password) {
+        return Integer.toHexString(Objects.hash(password));
+    }
+
+    private String generateUsername(String firstName, String lastName) {
+        if (lastName == null || lastName.isBlank()) {
+            return firstName.toLowerCase();
         }
 
-        return true;
+        return (firstName + "." + lastName).toLowerCase();
     }
 
-    public void logout() {
-
-        System.out.println(
-                username + " logged out."
-        );
-    }
-
-    public UUID getId() {
-        return id;
+    public String getUserId() {
+        return userId;
     }
 
     public String getUsername() {
@@ -68,62 +137,92 @@ public abstract class User implements Serializable {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+        this.username = generateUsername(this.firstName, this.lastName);
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+        this.username = generateUsername(this.firstName, this.lastName);
+    }
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
-        this.email = email;
+    ValidationUtils.validateEmail(email);
+    this.email = email;
+}
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
-    public boolean isActive() {
-        return active;
+    public String getFullName() {
+        if (lastName == null || lastName.isBlank()) {
+            return firstName;
+        }
+
+        return firstName + " " + lastName;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    // For old code compatibility
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    // For old code compatibility
+    public void setPassword(String password) {
+    ValidationUtils.validatePassword(password, username, firstName, lastName, email);
+    this.passwordHash = hashPassword(password);
+}
+
+    public void showMenu() {
+        System.out.println("=== User Menu ===");
+        System.out.println("1. View profile");
+        System.out.println("0. Logout");
     }
 
     @Override
-    public boolean equals(Object object) {
-
-        if (this == object) {
-            return true;
-        }
-
-        if (!(object instanceof User)) {
-            return false;
-        }
-
-        User user = (User) object;
-
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    public void printInfo() {
+        System.out.println(this);
     }
 
     @Override
     public String toString() {
-
-        return "User{id="
-                + id
-                + ", username='"
-                + username
-                + "', email='"
-                + email
-                + "'}";
+        return "User{" +
+                "userId='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", fullName='" + getFullName() + '\'' +
+                ", email='" + email + '\'' +
+                ", loggedIn=" + loggedIn +
+                ", createdAt=" + createdAt +
+                '}';
     }
 
-    public abstract void showMenu();
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+        return Objects.equals(userId, user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId);
+    }
 }

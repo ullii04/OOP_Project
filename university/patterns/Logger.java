@@ -1,15 +1,13 @@
 package university.patterns;
 
-import university.classes.*;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Logger implements Serializable {
     private static final long serialVersionUID = 1L;
+
     private static Logger instance;
     private final List<String> logs;
 
@@ -21,6 +19,7 @@ public class Logger implements Serializable {
         if (instance == null) {
             instance = new Logger();
         }
+
         return instance;
     }
 

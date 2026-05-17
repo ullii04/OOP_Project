@@ -1,7 +1,5 @@
 package university.utils;
 
-import university.classes.*;
-
 import university.exceptions.AuthenticationException;
 import university.model.User;
 import university.patterns.Logger;
@@ -9,26 +7,45 @@ import university.patterns.Logger;
 public class AuthService {
     private static User currentUser;
 
-    public static User login(String username, String password) throws AuthenticationException {
-        User user = DataStorage.getInstance().findUserByUsername(username);
-        if (user == null) {
-            throw new AuthenticationException("User not found: " + username);
-        }
-        user.login(username, password); // throws AuthenticationException if fails
-        currentUser = user;
-        Logger.getInstance().log("LOGIN: " + username);
-        System.out.println("Welcome, " + username + "!");
-        return user;
+    private AuthService() {
     }
+
+    public static User login(String emailOrUsername, String password) throws AuthenticationException {
+    emailOrUsername = emailOrUsername.trim();
+    password = password.trim();
+
+    User user = DataStorage.getInstance().findUserByUsername(emailOrUsername);
+
+    if (user == null) {
+        user = DataStorage.getInstance().findUserByEmail(emailOrUsername);
+    }
+
+    if (user == null) {
+        throw new AuthenticationException("User not found: " + emailOrUsername);
+    }
+
+    user.login(emailOrUsername, password);
+    currentUser = user;
+
+    Logger.getInstance().log("LOGIN: " + user.getEmail());
+    System.out.println("Welcome, " + user.getFullName() + "!");
+
+    return user;
+}
 
     public static void logout() {
         if (currentUser != null) {
-            Logger.getInstance().log("LOGOUT: " + currentUser.getUsername());
+            Logger.getInstance().log("LOGOUT: " + currentUser.getEmail());
             currentUser.logout();
             currentUser = null;
         }
     }
 
-    public static User getCurrentUser() { return currentUser; }
-    public static boolean isLoggedIn() { return currentUser != null; }
+    public static User getCurrentUser() {
+        return currentUser;
+    }
+
+    public static boolean isLoggedIn() {
+        return currentUser != null && currentUser.isLoggedIn();
+    }
 }
