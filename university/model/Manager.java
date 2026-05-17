@@ -1,14 +1,11 @@
 package university.model;
-
 import university.classes.*;
 import university.enums.ManagerType;
-import university.exceptions.GradeRequirementException; // Импортируем твой эксепшн
+import university.exceptions.GradeRequirementException;
 import university.patterns.Logger;
-
-import java.io.Serializable;
 import java.util.*;
 
-public class Manager extends Employee implements Serializable {
+public class Manager extends Employee {
     private static final long serialVersionUID = 1L;
 
     private ManagerType type;
