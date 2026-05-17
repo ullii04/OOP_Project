@@ -1,4 +1,8 @@
-package university.model;
+package university.classes;
+
+import university.exceptions.InvalidGradeException;
+import university.exceptions.GradeRequirementException;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,7 +22,7 @@ public class Mark implements Serializable {
     }
 
     public Mark(double attestation1, double attestation2, double finalExam,
-                Student student, Course course) {
+                Student student, Course course) throws InvalidGradeException {
         this.student = student;
         this.course = course;
 
@@ -27,25 +31,51 @@ public class Mark implements Serializable {
         setFinalExam(finalExam);
     }
 
-    public void setAttestation1(double attestation1) {
+    public void setAttestation1(double attestation1) throws InvalidGradeException {
         validateScore(attestation1, 0, 30, "Attestation 1");
         this.attestation1 = attestation1;
     }
 
-    public void setAttestation2(double attestation2) {
+    public void setAttestation2(double attestation2) throws InvalidGradeException {
         validateScore(attestation2, 0, 30, "Attestation 2");
         this.attestation2 = attestation2;
     }
 
-    public void setFinalExam(double finalExam) {
+    public void setFinalExam(double finalExam) throws InvalidGradeException {
         validateScore(finalExam, 0, 40, "Final exam");
         this.finalExam = finalExam;
     }
 
-    private void validateScore(double score, double min, double max, String fieldName) {
+    private void validateScore(double score, double min, double max, String fieldName)
+            throws InvalidGradeException {
         if (score < min || score > max) {
-            throw new IllegalArgumentException(
-                    fieldName + " must be between " + min + " and " + max
+            throw new InvalidGradeException(fieldName, score, min, max);
+        }
+    }
+
+    public void validatePassingRequirements() throws GradeRequirementException {
+        if (!hasAllMarks()) {
+            throw new GradeRequirementException("Cannot validate grade: not all marks are entered.");
+        }
+
+        if (getAttestationsTotal() < 30) {
+            throw new GradeRequirementException(
+                    "Student failed: attestation total must be at least 30 out of 60. Current: "
+                            + getAttestationsTotal()
+            );
+        }
+
+        if (getFinalExam() < 20) {
+            throw new GradeRequirementException(
+                    "Student failed: final exam must be at least 20 out of 40. Current: "
+                            + getFinalExam()
+            );
+        }
+
+        if (getTotal() < 50) {
+            throw new GradeRequirementException(
+                    "Student failed: total mark must be at least 50 out of 100. Current: "
+                            + getTotal()
             );
         }
     }
@@ -121,6 +151,18 @@ public class Mark implements Serializable {
 
     public double getFinalExam() {
         return finalExam == null ? 0.0 : finalExam;
+    }
+
+    public boolean hasAttestation1() {
+        return attestation1 != null;
+    }
+
+    public boolean hasAttestation2() {
+        return attestation2 != null;
+    }
+
+    public boolean hasFinalExam() {
+        return finalExam != null;
     }
 
     public Student getStudent() {
