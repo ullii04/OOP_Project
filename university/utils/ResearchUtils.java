@@ -1,7 +1,4 @@
 package university.utils;
-
-import university.classes.*;
-
 import university.model.Researcher;
 import university.classes.ResearchPaper;
 
@@ -10,8 +7,6 @@ import java.util.List;
 
 
 public class ResearchUtils {
-
-    /** Print all papers from all researchers in the university, sorted by given strategy */
     public static void printAllPapers(List<Researcher> researchers, Comparator<ResearchPaper> comparator) {
         System.out.println("====== ALL RESEARCH PAPERS IN UNIVERSITY ======");
         researchers.stream()
@@ -20,7 +15,6 @@ public class ResearchUtils {
                 .forEach(System.out::println);
     }
 
-    /** Print top cited researcher of a given school */
     public static void printTopCitedResearcherOfSchool(List<Researcher> researchers) {
         System.out.println("=== Top Cited Researcher of University ===");
         researchers.stream()
@@ -33,7 +27,6 @@ public class ResearchUtils {
                         () -> System.out.println("No researchers found."));
     }
 
-    /** Print top cited researcher of a given year */
     public static void printTopCitedResearcherOfYear(List<Researcher> researchers, int year) {
         System.out.println("=== Top Cited Researcher of Year " + year + " ===");
         researchers.stream()
