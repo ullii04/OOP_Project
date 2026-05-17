@@ -20,7 +20,7 @@ public class Student extends User {
     private List<Course> courses;
     private List<Enrollment> enrollments;
     private Researcher researchSupervisor;
-    private Researcher researcherRole;
+    private Researcher researcherProfile;
 
     public Student(String username,
                    String password,
@@ -200,15 +200,14 @@ public class Student extends User {
     }
 
     public boolean isResearcher() {
-        return researcherRole != null;
+        return researcherProfile != null;
     }
 
-    public void enableResearcherRole(Researcher role) {
-        this.researcherRole = role;
+    public void enableResearcherProfile(Researcher role) {
+        this.researcherProfile = role;
     }
-
-    public Researcher getResearcherRole() {
-        return researcherRole;
+    public Researcher getResearcherProfile() {
+        return researcherProfile;
     }
 
     public String getStudentId() {
@@ -253,6 +252,10 @@ public class Student extends User {
 
     public Researcher getResearchSupervisor() {
         return researchSupervisor;
+    }
+
+    public void setResearcherProfile(Researcher researcherProfile) {
+        this.researcherProfile = researcherProfile;
     }
 
     @Override
