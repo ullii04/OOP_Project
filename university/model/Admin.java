@@ -1,13 +1,11 @@
 package university.model;
-
-import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import university.interfaces.Observer;
 import university.patterns.Logger;
 import university.utils.DataStorage;
 
-public class Admin extends User implements Observer, Serializable {
+public class Admin extends User implements Observer {
     private static final long serialVersionUID = 1L;
 
     private final int accessLevel;
