@@ -1,15 +1,14 @@
-package university.model;
-
+package university.classes;
 import university.enums.LessonType;
 import university.classes.Room;
 import university.classes.Schedule;
 import university.exceptions.GradeRequirementException; 
 import java.io.Serializable;
 import java.util.Objects;
+import university.model.*;
 
 public class Lesson implements Serializable, Comparable<Lesson> {
     private static final long serialVersionUID = 1L;
-
     private final String lessonId; 
     private String name;
     private LessonType type;
@@ -99,9 +98,7 @@ public class Lesson implements Serializable, Comparable<Lesson> {
                 '}';
     }
 
-    // Getters & Setters
     public String getLessonId() { return lessonId; }
-    
     public String getName() { return name; }
     public void setName(String name) { 
         if (name == null || name.isBlank()) throw new IllegalArgumentException("Name cannot be empty.");
