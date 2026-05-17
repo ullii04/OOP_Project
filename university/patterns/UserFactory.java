@@ -1,7 +1,4 @@
 package university.patterns;
-
-import university.classes.*;
-
 import university.enums.ManagerType;
 import university.enums.TeacherTitle;
 import university.model.*;
