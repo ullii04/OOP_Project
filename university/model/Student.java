@@ -45,7 +45,7 @@ public class Student extends User implements Serializable {
         this.enrollments = new ArrayList<>();
     }
 
-    public void registerCourse(Course course)
+    public Enrollment registerCourse(Course course)
             throws MaxCreditsExceededException {
 
         if (credits + course.getCredits() > MAX_CREDITS) {
@@ -76,6 +76,7 @@ public class Student extends User implements Serializable {
                 "Registration submitted (pending approval): "
                         + course.getName()
         );
+        return enrollment;
     }
 
     public void viewMarks() {
