@@ -92,6 +92,10 @@ public class Researcher implements Serializable {
         System.out.println(ownerName + " joined project: " + project.getTopic());
     }
 
+    public void addProject(ResearchProject project) throws LowResearcherException {
+        addParticipants(project);
+    }
+
     public void addPaper(ResearchPaper paper) {
         if (paper == null) {
             throw new IllegalArgumentException("Research paper cannot be null.");
