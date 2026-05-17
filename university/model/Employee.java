@@ -1,12 +1,10 @@
 package university.model;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import university.interfaces.Observer;
 import university.patterns.Logger;
 
-public abstract class Employee extends User implements Observer, Serializable {
+public abstract class Employee extends User implements Observer {
     private static final long serialVersionUID = 1L;
 
     private double salary;
