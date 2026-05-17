@@ -1,4 +1,4 @@
-package university.model;
+package university.classes;
 import university.enums.EnrollmentStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
