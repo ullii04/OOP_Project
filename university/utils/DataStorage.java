@@ -199,7 +199,7 @@ public class DataStorage implements Serializable {
 
         for (User user : users) {
             if (user instanceof Student student && student.isResearcher()) {
-                researchers.add(student.getResearcherRole());
+                researchers.add(student.getResearcherProfile());
             }
 
             if (user instanceof Teacher teacher && teacher.isResearcher()) {
