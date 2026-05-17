@@ -1,9 +1,9 @@
 package university.model;
 
 import university.classes.*;
-
-import university.classes.*;
 import university.enums.TeacherTitle;
+import university.exceptions.InvalidGradeException;
+import university.exceptions.GradeRequirementException; 
 import university.patterns.Logger;
 
 import java.io.Serializable;
@@ -11,189 +11,106 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Teacher extends Employee implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private TeacherTitle title;
-
     private List<Course> courses;
+    private List<Lesson> schedule;
 
-    private double rating;
-
-    private Researcher researcherRole;
-
-    public Teacher(String username,
-                   String password,
-                   String email,
-                   String firstName,
-                   String lastName,
-                   String school,
-                   double salary,
-                   TeacherTitle title) {
-
-        super(
-                username,
-                password,
-                email,
-                firstName,
-                lastName,
-                school,
-                salary
-        );
-
+    public Teacher(String username, String password, String email,
+                   String firstName, String lastName, String school, 
+                   double salary, TeacherTitle title) {
+        super(username, password, email, firstName, lastName, school, salary);
         this.title = title;
-
         this.courses = new ArrayList<>();
+        this.schedule = new ArrayList<>();
+    }
 
-        this.rating = 0.0;
+    public Teacher(String firstName, String lastName, String email, String password,
+                   String school, double salary, TeacherTitle title) {
+        super(firstName, lastName, email, password, school, salary);
+        this.title = title;
+        this.courses = new ArrayList<>();
+        this.schedule = new ArrayList<>();
+    }
 
-        if (title == TeacherTitle.PROFESSOR
-                || title == TeacherTitle.ASSOCIATE_PROFESSOR) {
+   
+    public void putMark(Student student, Course course, double attestation1, double attestation2, double finalGrade) {
+        try {
+            
+            if ((attestation1 + attestation2) < 30.0 && finalGrade > 0) {
+                throw new GradeRequirementException("Student " + student.getFullName() + 
+                    " cannot take the final exam. Total attestation score must be at least 30.0. Current: " + (attestation1 + attestation2));
+            }
 
-            this.researcherRole =
-                    new Researcher(getFullName());
+            
+            Mark mark = new Mark(attestation1, attestation2, finalGrade, student, course);
+            student.addMark(mark);
+
+            Logger.getInstance().log(getUsername() + " put mark for " + student.getUsername() + " in " + course.getName());
+            System.out.println(" Mark successfully updated for " + student.getFullName() + " in " + course.getName());
+            
+        } catch (InvalidGradeException e) {
+            System.out.println(" Invalid grade error: " + e.getMessage());
+        } catch (GradeRequirementException e) {
+            System.out.println(" Academic requirement error: " + e.getMessage());
         }
     }
 
-    public boolean isProfessor() {
-
-        return title == TeacherTitle.PROFESSOR
-                || title == TeacherTitle.ASSOCIATE_PROFESSOR;
-    }
-
-    public boolean isResearcher() {
-        return researcherRole != null;
-    }
-
-    public void setResearcherRole(Researcher researcher) {
-        this.researcherRole = researcher;
-    }
-
-    public Researcher getResearcherRole() {
-        return researcherRole;
-    }
-
-    public void putMark(Student student,
-                        Course course,
-                        double attestation1,
-                        double attestation2,
-                        double finalGrade) {
-
-        Mark mark =
-                new Mark(
-                        attestation1,
-                        attestation2,
-                        finalGrade,
-                        student,
-                        course
-                );
-
-        student.addMark(mark);
-
-        Logger.getInstance()
-                .log(
-                        getUsername()
-                                + " put mark for "
-                                + student.getUsername()
-                                + " in "
-                                + course.getName()
-                );
-    }
-
     public void manageCourse(Course course) {
-
         if (!courses.contains(course)) {
             courses.add(course);
         }
     }
 
-    public void viewStudents(Course course) {
-
-        System.out.println(
-                "=== Students in "
-                        + course.getName()
-                        + " ==="
-        );
-
-        course.getStudents()
-                .forEach(student ->
-                        System.out.println(
-                                "  "
-                                        + student.getFullName()
-                                        + " | GPA: "
-                                        + student.getGpa()
-                        )
-                );
+    public void addLessonToSchedule(Lesson lesson) {
+        if (!schedule.contains(lesson)) {
+            schedule.add(lesson);
+        }
     }
 
-    public double getRating() {
-        return rating;
-    }
-
-    public void addRating(double value) {
-
-        if (this.rating == 0.0) {
-
-            this.rating = value;
-
+    public void viewMyCourses() {
+        System.out.println("\n=== Courses taught by " + title + " " + getFullName() + " ===");
+        if (courses.isEmpty()) {
+            System.out.println("No courses assigned yet.");
         } else {
-
-            this.rating =
-                    (this.rating + value) / 2.0;
+            courses.forEach(c -> System.out.println(" - " + c.getName() + " (" + c.getCredits() + " credits)"));
         }
     }
 
-    public TeacherTitle getTitle() {
-        return title;
-    }
-
-    public void setTitle(TeacherTitle title) {
-
-        this.title = title;
-
-        if ((title == TeacherTitle.PROFESSOR
-                || title == TeacherTitle.ASSOCIATE_PROFESSOR)
-                && researcherRole == null) {
-
-            this.researcherRole =
-                    new Researcher(getFullName());
+    public void viewMySchedule() {
+        System.out.println("\n=== Schedule for " + getFullName() + " ===");
+        if (schedule.isEmpty()) {
+            System.out.println("No lessons scheduled.");
+        } else {
+            schedule.forEach(System.out.println);
         }
-    }
-
-    public List<Course> getCourses() {
-        return courses;
     }
 
     @Override
     public void showMenu() {
-
-        System.out.println("=== Teacher Menu ===");
-
-        System.out.println("1. View Courses");
-        System.out.println("2. Manage Course");
-        System.out.println("3. View Students");
-        System.out.println("4. Put Mark");
-        System.out.println("5. Send Message");
-        System.out.println("6. View Inbox");
-
-        if (isResearcher()) {
-
-            System.out.println("7. Research Papers (sorted)");
-            System.out.println("8. Join Research Project");
-        }
-
+        System.out.println("\n=== Teacher Menu ===");
+        System.out.println("1. View My Courses");
+        System.out.println("2. View My Schedule");
+        System.out.println("3. Put/Update Student Mark");
+        System.out.println("4. View Inbox / Notifications");
+        System.out.println("5. Send Message to Colleague");
+        System.out.println("6. Send Complaint");
         System.out.println("0. Logout");
     }
 
+    public TeacherTitle getTitle() { return title; }
+    public void setTitle(TeacherTitle title) { this.title = title; }
+    public List<Course> getCourses() { return courses; }
+    public List<Lesson> getSchedule() { return schedule; }
+
     @Override
     public String toString() {
-
-        return "Teacher{name='"
-                + getFullName()
-                + "', title="
-                + title
-                + ", rating="
-                + rating
-                + "}";
+        return "Teacher{" +
+                "id='" + getEmployeeId() + '\'' +
+                ", title=" + title +
+                ", name='" + getFullName() + '\'' +
+                ", school='" + getSchool() + '\'' +
+                '}';
     }
 }
