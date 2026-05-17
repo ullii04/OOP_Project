@@ -3,6 +3,7 @@ import university.enums.EnrollmentStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
+import university.model.*;
 
 public class Enrollment implements Serializable {
     private static final long serialVersionUID = 1L;
