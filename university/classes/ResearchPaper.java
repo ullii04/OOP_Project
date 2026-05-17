@@ -37,6 +37,8 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
                          LocalDate date,
                          String statistics) {
 
+        validatePaper(doi, title, authors, journal, citations, pages, date, statistics);
+
         this.doi = doi;
         this.title = title;
         this.authors = authors;
@@ -47,6 +49,72 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
         this.statistics = statistics;
     }
 
+    private void validatePaper(String doi,
+                               String title,
+                               List<String> authors,
+                               String journal,
+                               int citations,
+                               int pages,
+                               LocalDate date,
+                               String statistics) {
+
+        if (doi == null || doi.isBlank()) {
+            throw new IllegalArgumentException("DOI cannot be empty.");
+        }
+
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Title cannot be empty.");
+        }
+
+        if (authors == null || authors.isEmpty()) {
+            throw new IllegalArgumentException("Authors cannot be empty.");
+        }
+
+        if (journal == null || journal.isBlank()) {
+            throw new IllegalArgumentException("Journal cannot be empty.");
+        }
+
+        if (citations < 0) {
+            throw new IllegalArgumentException("Citations cannot be negative.");
+        }
+
+        if (pages <= 0) {
+            throw new IllegalArgumentException("Pages must be greater than 0.");
+        }
+
+        if (date == null) {
+            throw new IllegalArgumentException("Date cannot be null.");
+        }
+
+        if (statistics == null || statistics.isBlank()) {
+            throw new IllegalArgumentException("Statistics cannot be empty.");
+        }
+    }
+
+    public void increaseCitations(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Citation amount must be positive.");
+        }
+
+        citations += amount;
+    }
+
+    public void addAuthor(String author) {
+        if (author == null || author.isBlank()) {
+            throw new IllegalArgumentException("Author name cannot be empty.");
+        }
+
+        authors.add(author);
+    }
+
+    public boolean isHighlyCited() {
+        return citations >= 100;
+    }
+
+    public int getAuthorCount() {
+        return authors.size();
+    }
+
     @Override
     public int compareTo(ResearchPaper other) {
         return BY_CITATIONS.compare(this, other);
@@ -54,7 +122,6 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
 
     @Override
     public boolean equals(Object object) {
-
         if (this == object) {
             return true;
         }
@@ -64,7 +131,6 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
         }
 
         ResearchPaper paper = (ResearchPaper) object;
-
         return Objects.equals(doi, paper.doi);
     }
 
@@ -75,15 +141,9 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
 
     @Override
     public String toString() {
-
         return String.format(
                 "ResearchPaper{title='%s', journal='%s', citations=%d, pages=%d, date=%s, doi='%s'}",
-                title,
-                journal,
-                citations,
-                pages,
-                date,
-                doi
+                title, journal, citations, pages, date, doi
         );
     }
 
@@ -108,6 +168,10 @@ public class ResearchPaper implements Serializable, Comparable<ResearchPaper> {
     }
 
     public void setCitations(int citations) {
+        if (citations < 0) {
+            throw new IllegalArgumentException("Citations cannot be negative.");
+        }
+
         this.citations = citations;
     }
 

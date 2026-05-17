@@ -17,17 +17,28 @@ public class ResearchProject implements Serializable {
     private List<Researcher> participants;
 
     public ResearchProject(String topic) {
+        validateTopic(topic);
+
         this.topic = topic;
         this.papers = new ArrayList<>();
         this.participants = new ArrayList<>();
     }
 
+    private void validateTopic(String topic) {
+        if (topic == null || topic.isBlank()) {
+            throw new IllegalArgumentException("Project topic cannot be empty.");
+        }
+    }
+
     public void addParticipants(Object person) throws NotResearcherException {
+        if (person == null) {
+            throw new NotResearcherException("Participant cannot be null.");
+        }
 
         if (!(person instanceof Researcher)) {
             throw new NotResearcherException(
                     person.getClass().getSimpleName()
-                    + " is not a Researcher and cannot join the project."
+                            + " is not a Researcher and cannot join the project."
             );
         }
 
@@ -38,12 +49,55 @@ public class ResearchProject implements Serializable {
         }
     }
 
+    public void removeParticipant(Researcher researcher) {
+        if (researcher == null) {
+            throw new IllegalArgumentException("Researcher cannot be null.");
+        }
+
+        participants.remove(researcher);
+    }
+
     public void addPaper(ResearchPaper paper) {
-        papers.add(paper);
+        if (paper == null) {
+            throw new IllegalArgumentException("Paper cannot be null.");
+        }
+
+        if (!papers.contains(paper)) {
+            papers.add(paper);
+        }
     }
 
     public void removePaper(ResearchPaper paper) {
+        if (paper == null) {
+            throw new IllegalArgumentException("Paper cannot be null.");
+        }
+
         papers.remove(paper);
+    }
+
+    public int getPaperCount() {
+        return papers.size();
+    }
+
+    public int getParticipantCount() {
+        return participants.size();
+    }
+
+    public int getTotalCitations() {
+        return papers.stream()
+                .mapToInt(ResearchPaper::getCitations)
+                .sum();
+    }
+
+    public double getAverageCitations() {
+        if (papers.isEmpty()) {
+            return 0.0;
+        }
+
+        return papers.stream()
+                .mapToInt(ResearchPaper::getCitations)
+                .average()
+                .orElse(0.0);
     }
 
     public String getTopic() {
@@ -51,6 +105,7 @@ public class ResearchProject implements Serializable {
     }
 
     public void setTopic(String topic) {
+        validateTopic(topic);
         this.topic = topic;
     }
 
@@ -64,7 +119,6 @@ public class ResearchProject implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-
         if (this == object) {
             return true;
         }
@@ -74,7 +128,6 @@ public class ResearchProject implements Serializable {
         }
 
         ResearchProject project = (ResearchProject) object;
-
         return Objects.equals(topic, project.topic);
     }
 
@@ -85,13 +138,14 @@ public class ResearchProject implements Serializable {
 
     @Override
     public String toString() {
-
         return "ResearchProject{topic='" +
                 topic +
                 "', papers=" +
                 papers.size() +
                 ", participants=" +
                 participants.size() +
+                ", totalCitations=" +
+                getTotalCitations() +
                 "}";
     }
 }
